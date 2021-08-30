@@ -11,8 +11,11 @@ public class Box {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     private Game game;
+    @NotNull
     private Boolean opened;
+    @NotNull
     private Boolean winning;
+    @NotNull
     private Boolean picked;
 
     public Long getId() {
@@ -53,5 +56,16 @@ public class Box {
 
     public void setPicked(Boolean picked) {
         this.picked = picked;
+    }
+
+    @Override
+    public String toString() {
+        return "Box{" +
+                "id=" + id +
+                ", game=" + game +
+                ", opened=" + opened +
+                ", winning=" + winning +
+                ", picked=" + picked +
+                '}';
     }
 }

@@ -47,4 +47,14 @@ public class GameResult {
     public void setWin(Boolean win) {
         this.win = win;
     }
+
+    @Override
+    public String toString() {
+        return "GameResult{" +
+                "id=" + id +
+                ", game=" + game +
+                ", pickedBoxWasChanged=" + pickedBoxWasChanged +
+                ", win=" + win +
+                '}';
+    }
 }

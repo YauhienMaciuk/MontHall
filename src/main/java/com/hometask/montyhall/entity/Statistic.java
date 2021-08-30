@@ -4,6 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Entity
@@ -11,9 +14,17 @@ public class Statistic {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull
+    @Min(value = 3)
+    @Max(value = 1000)
     private Integer numberOfBoxes;
+    @NotNull
+    @Min(value = 1)
+    @Max(value = 1000000)
     private Integer numberOfGames;
+    @NotNull
     private BigDecimal changeOriginChoiceWinPercentage;
+    @NotNull
     private BigDecimal stickToOriginChoiceWinPercentage;
 
     public Long getId() {
@@ -54,5 +65,16 @@ public class Statistic {
 
     public void setStickToOriginChoiceWinPercentage(BigDecimal winPercentageAfterStickToOriginChoice) {
         this.stickToOriginChoiceWinPercentage = winPercentageAfterStickToOriginChoice;
+    }
+
+    @Override
+    public String toString() {
+        return "Statistic{" +
+                "id=" + id +
+                ", numberOfBoxes=" + numberOfBoxes +
+                ", numberOfGames=" + numberOfGames +
+                ", changeOriginChoiceWinPercentage=" + changeOriginChoiceWinPercentage +
+                ", stickToOriginChoiceWinPercentage=" + stickToOriginChoiceWinPercentage +
+                '}';
     }
 }

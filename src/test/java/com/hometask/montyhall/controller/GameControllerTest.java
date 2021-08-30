@@ -82,7 +82,7 @@ public class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(gameDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("[\"numberOfBoxes must be bigger than 0 or equal 3\"]",
+                .andExpect(result -> assertEquals("[\"numberOfBoxes must be bigger than or equal 3\"]",
                         result.getResponse().getContentAsString()));
     }
 

@@ -5,7 +5,7 @@ import javax.validation.constraints.Min;
 
 public class GameDto {
     private Long id;
-    @Min(value = 3, message = "numberOfBoxes must be bigger than 0 or equal 3")
+    @Min(value = 3, message = "numberOfBoxes must be bigger than or equal 3")
     @Max(value = 1000, message = "numberOfBoxes must be less than or equal 1000")
     private int numberOfBoxes;
 
@@ -23,5 +23,13 @@ public class GameDto {
 
     public void setNumberOfBoxes(int numberOfBoxes) {
         this.numberOfBoxes = numberOfBoxes;
+    }
+
+    @Override
+    public String toString() {
+        return "GameDto{" +
+                "id=" + id +
+                ", numberOfBoxes=" + numberOfBoxes +
+                '}';
     }
 }

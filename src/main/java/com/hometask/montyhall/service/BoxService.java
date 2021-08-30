@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface BoxService {
 
-    Box createBox(Game game, boolean winning, boolean dryRun);
+    Box createBox(Game game, boolean winning);
 
     List<BoxDto> findBoxesDtoByGameId(Long gameId);
 
@@ -22,7 +22,7 @@ public interface BoxService {
 
     List<Box> updateAll(List<Box> boxes);
 
-    List<Box> createBoxes(Game game, int numberOfBoxes, boolean dryRun);
+    List<Box> createBoxes(Game game, int numberOfBoxes);
 
     List<Box> openAllBoxesExceptOne(List<Box> boxes, Box pickedBox);
 }

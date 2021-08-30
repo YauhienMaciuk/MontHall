@@ -1,11 +1,14 @@
 package com.hometask.montyhall.dto;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 public class StatisticDto {
-    @NotNull(message = "numberOfBoxes value must not be null")
+    @Min(value = 3, message = "numberOfBoxes must be bigger than or equal 3")
+    @Max(value = 1000, message = "numberOfBoxes must be less than or equal 1000000")
     private int numberOfBoxes;
-    @NotNull(message = "numberOfGames value must not be null")
+    @Min(value = 1, message = "numberOfGames must be bigger than or equal 1")
+    @Max(value = 1000000, message = "numberOfGames must be less than or equal 1000000")
     private int numberOfGames;
 
     public int getNumberOfBoxes() {
@@ -22,5 +25,13 @@ public class StatisticDto {
 
     public void setNumberOfGames(int numberOfGames) {
         this.numberOfGames = numberOfGames;
+    }
+
+    @Override
+    public String toString() {
+        return "StatisticDto{" +
+                "numberOfBoxes=" + numberOfBoxes +
+                ", numberOfGames=" + numberOfGames +
+                '}';
     }
 }

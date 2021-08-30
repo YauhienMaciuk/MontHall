@@ -35,7 +35,7 @@ public class BoxController {
     })
     @GetMapping("/games/{gameId}/boxes")
     public List<BoxDto> findAllBoxesByGameId(@PathVariable Long gameId,
-                                             @RequestParam (required = false) Boolean unopened) {
+                                             @RequestParam(required = false) Boolean unopened) {
         if (unopened != null && unopened) {
             return boxService.findUnopenedBoxesDtoByGameId(gameId);
         } else {
