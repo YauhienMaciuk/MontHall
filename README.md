@@ -1,4 +1,15 @@
 
+How build MontyHall app:
+1) git clone https://github.com/YauhienMaciuk/montyhall.git
+2) cd montyhall
+3) ./mvnw install
+
+Run app with Docker:
+1) docker run 8080:8080 maciuk/montyhall
+
+Or Run app with command:
+1) java -jar target/montyhall-0.0.1-SNAPSHOT.jar
+
 All descriptions of APIs are available by http://localhost:8080/monty-hall-swagger-ui/index.html
 
 The terms of playing the MontyHall game:
