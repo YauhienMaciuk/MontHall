@@ -48,7 +48,6 @@ public class BoxController {
             @ApiResponse(responseCode = "200", description = "The Box was picked",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = BoxDto.class))}),
-            @ApiResponse(responseCode = "404", description = "Could not find boxes by gameId", content = @Content),
             @ApiResponse(responseCode = "404", description = "Could not find the Game by id", content = @Content)
     })
     @PutMapping("/games/{gameId}/boxes/{boxId}")
