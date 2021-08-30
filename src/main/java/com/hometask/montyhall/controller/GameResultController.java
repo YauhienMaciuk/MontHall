@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 public class GameResultController {
 
@@ -31,7 +33,7 @@ public class GameResultController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/games/{gameId}/game-results")
-    public GameResult createGameResult(@PathVariable Long gameId, @RequestBody ChooseDecision chooseDecision) {
+    public GameResult createGameResult(@PathVariable Long gameId, @RequestBody @Valid ChooseDecision chooseDecision) {
         return gameResultService.createGameResult(gameId, chooseDecision.getChangePickedBox());
     }
 }

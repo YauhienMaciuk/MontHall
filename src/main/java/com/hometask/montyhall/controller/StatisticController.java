@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/statistics")
 public class StatisticController {
@@ -44,7 +46,7 @@ public class StatisticController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Statistic createStatistic(@RequestBody StatisticDto statisticDto) {
+    public Statistic createStatistic(@RequestBody @Valid StatisticDto statisticDto) {
         return statisticService.createStatistic(statisticDto);
     }
 }
