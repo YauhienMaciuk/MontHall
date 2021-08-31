@@ -1,0 +1,34 @@
+version: '3'
+services:
+  mysqldb:
+    image: 'mysql'
+    container_name: mysqldb
+    ports:
+    - "3306:3306"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_USERNAME=root
+      - MYSQL_DATABASE=montyhalldb
+    volumes:
+      - sql:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  montyhall-service:
+    build: ./
+    container_name: montyhall-service
+    ports:
+    - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/montyhalldb
+    restart: on-failure
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+
+volumes:
+  sql:
