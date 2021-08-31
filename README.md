@@ -5,7 +5,7 @@ How build MontyHall app:
 3) ./mvnw install
 
 Run app with Docker:
-1) docker run 8080:8080 maciuk/montyhall
+1) docker-compose up
 
 Or Run app with command:
 1) java -jar target/montyhall-0.0.1-SNAPSHOT.jar
