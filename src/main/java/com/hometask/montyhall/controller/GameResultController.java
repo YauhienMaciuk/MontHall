@@ -34,6 +34,7 @@ public class GameResultController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/games/{gameId}/game-results")
     public GameResult createGameResult(@PathVariable Long gameId, @RequestBody @Valid ChooseDecision chooseDecision) {
-        return gameResultService.createGameResult(gameId, chooseDecision.getChangePickedBox());
+        Boolean changePickedBox = chooseDecision.getChangePickedBox();
+        return gameResultService.createGameResult(gameId, changePickedBox);
     }
 }

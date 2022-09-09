@@ -2,6 +2,7 @@ package com.hometask.montyhall.dto;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.Objects;
 
 public class StatisticDto {
     @Min(value = 3, message = "numberOfBoxes must be bigger than or equal 3")
@@ -25,6 +26,24 @@ public class StatisticDto {
 
     public void setNumberOfGames(int numberOfGames) {
         this.numberOfGames = numberOfGames;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        StatisticDto that = (StatisticDto) o;
+        return numberOfBoxes == that.numberOfBoxes &&
+                numberOfGames == that.numberOfGames;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(numberOfBoxes, numberOfGames);
     }
 
     @Override

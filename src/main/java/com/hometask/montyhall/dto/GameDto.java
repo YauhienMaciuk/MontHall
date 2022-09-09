@@ -2,6 +2,7 @@ package com.hometask.montyhall.dto;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.Objects;
 
 public class GameDto {
     private Long id;
@@ -23,6 +24,24 @@ public class GameDto {
 
     public void setNumberOfBoxes(int numberOfBoxes) {
         this.numberOfBoxes = numberOfBoxes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GameDto gameDto = (GameDto) o;
+        return numberOfBoxes == gameDto.numberOfBoxes &&
+                Objects.equals(id, gameDto.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, numberOfBoxes);
     }
 
     @Override

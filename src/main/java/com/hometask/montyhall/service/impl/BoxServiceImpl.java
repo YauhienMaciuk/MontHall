@@ -65,7 +65,7 @@ public class BoxServiceImpl implements BoxService {
         Box pickedBox = boxes.stream()
                 .filter(b -> b.getId().equals(boxId))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchEntityException("Could not find box by boxId"));
+                .orElseThrow(() -> new NoSuchEntityException("Could not find box by boxId = " + boxId));
 
         pickedBox.setPicked(true);
 

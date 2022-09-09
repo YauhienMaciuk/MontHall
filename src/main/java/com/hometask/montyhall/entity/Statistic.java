@@ -8,6 +8,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 public class Statistic {
@@ -65,6 +66,27 @@ public class Statistic {
 
     public void setStickToOriginChoiceWinPercentage(BigDecimal winPercentageAfterStickToOriginChoice) {
         this.stickToOriginChoiceWinPercentage = winPercentageAfterStickToOriginChoice;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Statistic statistic = (Statistic) o;
+        return Objects.equals(id, statistic.id) &&
+                Objects.equals(numberOfBoxes, statistic.numberOfBoxes) &&
+                Objects.equals(numberOfGames, statistic.numberOfGames) &&
+                Objects.equals(changeOriginChoiceWinPercentage, statistic.changeOriginChoiceWinPercentage) &&
+                Objects.equals(stickToOriginChoiceWinPercentage, statistic.stickToOriginChoiceWinPercentage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, numberOfBoxes, numberOfGames, changeOriginChoiceWinPercentage, stickToOriginChoiceWinPercentage);
     }
 
     @Override
