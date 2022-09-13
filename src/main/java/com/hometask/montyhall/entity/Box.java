@@ -2,6 +2,7 @@ package com.hometask.montyhall.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Entity
 public class Box {
@@ -56,6 +57,27 @@ public class Box {
 
     public void setPicked(Boolean picked) {
         this.picked = picked;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Box box = (Box) o;
+        return Objects.equals(id, box.id) &&
+                Objects.equals(game, box.game) &&
+                Objects.equals(opened, box.opened) &&
+                Objects.equals(winning, box.winning) &&
+                Objects.equals(picked, box.picked);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, game, opened, winning, picked);
     }
 
     @Override
