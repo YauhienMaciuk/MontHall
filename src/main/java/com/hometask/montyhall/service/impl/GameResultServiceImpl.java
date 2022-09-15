@@ -25,9 +25,11 @@ public class GameResultServiceImpl implements GameResultService {
     private final GameService gameService;
     private final BoxService boxService;
 
-    public GameResultServiceImpl(GameResultRepository gameResultRepository,
-                                 GameService gameService,
-                                 BoxService boxService) {
+    public GameResultServiceImpl(
+            GameResultRepository gameResultRepository,
+            GameService gameService,
+            BoxService boxService
+    ) {
         this.gameResultRepository = gameResultRepository;
         this.gameService = gameService;
         this.boxService = boxService;
@@ -38,30 +40,32 @@ public class GameResultServiceImpl implements GameResultService {
         LOGGER.info(String.format("Trying to create GameResult with gameId = %s and changePickedBox = %s",
                 gameId, changePickedBox));
         Game game = gameService.findById(gameId);
+        GameStatus gameStatus = game.getStatus();
 
-        if (game.getStatus() != GameStatus.IN_PROGRESS) {
-            throw new GameResultException("Before get GameResult you must pick a box!");
+        if (gameStatus != GameStatus.IN_PROGRESS) {
+            throw new GameResultException("GameResult cannot be created when game status is " + gameStatus);
         }
 
         List<Box> changedBoxes = new ArrayList<>();
-        Box pickedBox = boxService.findPickedBoxByGameId(gameId);
-        boolean win = pickedBox.getWinning();
-        if (changePickedBox) {
-            pickedBox.setPicked(false);
-            Box rePickedBox = boxService.findUnopenedAndUnpickedBoxByGameId(gameId);
-            rePickedBox.setPicked(true);
-            rePickedBox.setOpened(true);
-            win = rePickedBox.getWinning();
-            changedBoxes.add(rePickedBox);
-        } else {
-            pickedBox.setOpened(true);
-            changedBoxes.add(pickedBox);
-        }
 
         GameResult gameResult = new GameResult();
         gameResult.setGame(game);
         gameResult.setPickedBoxWasChanged(changePickedBox);
-        gameResult.setWin(win);
+
+        if (changePickedBox) {
+            Box rePickedBox = boxService.findUnopenedAndUnpickedBoxByGameId(gameId);
+            rePickedBox.setPicked(true);
+            rePickedBox.setOpened(true);
+            boolean winning = rePickedBox.getWinning();
+            gameResult.setWin(winning);
+            changedBoxes.add(rePickedBox);
+        } else {
+            Box pickedBox = boxService.findPickedBoxByGameId(gameId);
+            pickedBox.setOpened(true);
+            Boolean winning = pickedBox.getWinning();
+            gameResult.setWin(winning);
+            changedBoxes.add(pickedBox);
+        }
 
         gameResult = gameResultRepository.save(gameResult);
         LOGGER.info(String.format("The GameResult was created = %s", gameResult));
