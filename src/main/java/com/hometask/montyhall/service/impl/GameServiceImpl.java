@@ -5,8 +5,8 @@ import com.hometask.montyhall.entity.Game;
 import com.hometask.montyhall.entity.GameStatus;
 import com.hometask.montyhall.exception.NoSuchEntityException;
 import com.hometask.montyhall.repository.GameRepository;
-import com.hometask.montyhall.service.GameService;
 import com.hometask.montyhall.service.BoxService;
+import com.hometask.montyhall.service.GameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,10 @@ public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
     private final BoxService boxService;
 
-    public GameServiceImpl(GameRepository gameRepository,
-                           BoxService boxService) {
+    public GameServiceImpl(
+            GameRepository gameRepository,
+            BoxService boxService
+    ) {
         this.gameRepository = gameRepository;
         this.boxService = boxService;
     }
