@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class GameResultControllerIT {
+class GameResultControllerIT {
 
     private final GameResultService gameResultService = mock(GameResultService.class);
 

@@ -29,7 +29,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game createGame(GameDto gameDto) {
-        LOGGER.info(String.format("Trying to create Game with gameDto = %s", gameDto));
+        LOGGER.info("Trying to create Game with gameDto = {}", gameDto);
         Game game = new Game();
         game.setStatus(GameStatus.CREATED);
 
@@ -41,14 +41,14 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game findById(Long id) {
-        LOGGER.info(String.format("Trying to find Game by id = %s", id));
+        LOGGER.info("Trying to find Game by id = {}", id);
         return gameRepository.findById(id).orElseThrow(() ->
                 new NoSuchEntityException(String.format("Could not find the Game by id = %s", id)));
     }
 
     @Override
     public void changeGameStatus(Long gameId, GameStatus status) {
-        LOGGER.info(String.format("Trying to set %s status for game with id = %s", status.toString(), gameId));
+        LOGGER.info("Trying to set {} status for game with id = {}", status, gameId);
         Game game = findById(gameId);
         game.setStatus(status);
         gameRepository.save(game);

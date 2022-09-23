@@ -17,6 +17,7 @@ import java.util.Random;
 public class StatisticServiceImpl implements StatisticService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatisticServiceImpl.class);
+    private static final Random RANDOM = new Random();
 
     private final StatisticRepository statisticRepository;
 
@@ -26,8 +27,8 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public Statistic findByNumberOfBoxesAndNumberOfGames(int numberOfBoxes, int numberOfGames) {
-        LOGGER.info(String.format("Trying to find Statistic with numberOfBoxes = %s and numberOfGames = %s",
-                numberOfBoxes, numberOfGames));
+        LOGGER.info("Trying to find Statistic with numberOfBoxes = {} and numberOfGames = {}",
+                numberOfBoxes, numberOfGames);
         Statistic statistic = statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames);
 
         if (statistic == null) {
@@ -39,7 +40,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public Statistic createStatistic(StatisticDto statisticDto) {
-        LOGGER.info(String.format("Trying to create new Statistic with when statisticDto: %s", statisticDto));
+        LOGGER.info("Trying to create new Statistic with when statisticDto: {}", statisticDto);
         int numberOfBoxes = statisticDto.getNumberOfBoxes();
         int numberOfGames = statisticDto.getNumberOfGames();
 
@@ -69,7 +70,7 @@ public class StatisticServiceImpl implements StatisticService {
                 .count(stickToOriginChoiceWinPercentage, numberOfGames));
 
         statistic = statisticRepository.save(statistic);
-        LOGGER.info(String.format("The Statistic was created: %s", statistic));
+        LOGGER.info("The Statistic was created: {}", statistic);
 
         return statistic;
     }
@@ -83,12 +84,11 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     private boolean playGameWithoutChangingPickedBox(int numberOfBoxes) {
-        Random random = new Random();
         boolean[] boxes = new boolean[numberOfBoxes];
 
-        int winningBox = random.nextInt(numberOfBoxes);
+        int winningBox = RANDOM.nextInt(numberOfBoxes);
         boxes[winningBox] = true;
 
-        return boxes[random.nextInt(numberOfBoxes)];
+        return boxes[RANDOM.nextInt(numberOfBoxes)];
     }
 }

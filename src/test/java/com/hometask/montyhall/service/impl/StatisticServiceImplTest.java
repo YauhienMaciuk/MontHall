@@ -17,6 +17,7 @@ import java.math.RoundingMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +86,7 @@ class StatisticServiceImplTest {
         statistic.setStickToOriginChoiceWinPercentage(stickToOriginChoiceWinPercentage);
 
         when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames)).thenReturn(null);
-        when(statisticRepository.save(statistic)).thenReturn(statistic);
+        when(statisticRepository.save(any(Statistic.class))).thenReturn(statistic);
 
         Statistic actual = statisticService.createStatistic(statisticDto);
 
@@ -95,7 +96,7 @@ class StatisticServiceImplTest {
         assertThat(actual.getStickToOriginChoiceWinPercentage()).isNotNull();
 
         verify(statisticRepository).findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames);
-        verify(statisticRepository).save(statistic);
+        verify(statisticRepository).save(any(Statistic.class));
     }
 
     @Test

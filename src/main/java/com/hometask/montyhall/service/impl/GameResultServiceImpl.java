@@ -6,9 +6,9 @@ import com.hometask.montyhall.entity.GameResult;
 import com.hometask.montyhall.entity.GameStatus;
 import com.hometask.montyhall.exception.GameResultException;
 import com.hometask.montyhall.repository.GameResultRepository;
+import com.hometask.montyhall.service.BoxService;
 import com.hometask.montyhall.service.GameResultService;
 import com.hometask.montyhall.service.GameService;
-import com.hometask.montyhall.service.BoxService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,8 +37,7 @@ public class GameResultServiceImpl implements GameResultService {
 
     @Override
     public GameResult createGameResult(Long gameId, boolean changePickedBox) {
-        LOGGER.info(String.format("Trying to create GameResult with gameId = %s and changePickedBox = %s",
-                gameId, changePickedBox));
+        LOGGER.info("Trying to create GameResult with gameId = {} and changePickedBox = {}", gameId, changePickedBox);
         Game game = gameService.findById(gameId);
         GameStatus gameStatus = game.getStatus();
 
@@ -68,7 +67,7 @@ public class GameResultServiceImpl implements GameResultService {
         }
 
         gameResult = gameResultRepository.save(gameResult);
-        LOGGER.info(String.format("The GameResult was created = %s", gameResult));
+        LOGGER.info("The GameResult was created = {}", gameResult);
 
         gameService.changeGameStatus(gameId, GameStatus.FINISHED);
         boxService.updateAll(changedBoxes);

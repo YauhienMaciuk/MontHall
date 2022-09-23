@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class BoxControllerIT {
+class BoxControllerIT {
 
     private final BoxService boxService = mock(BoxService.class);
     private final GameService gameService = mock(GameService.class);

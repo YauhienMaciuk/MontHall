@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class BoxServiceImpl implements BoxService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoxServiceImpl.class);
+    private static final Random RANDOM = new Random();
 
     private final BoxRepository boxRepository;
 
@@ -35,14 +36,14 @@ public class BoxServiceImpl implements BoxService {
         box.setWinning(winning);
 
         box = boxRepository.save(box);
-        LOGGER.info(String.format("The box was created: %s", box));
+        LOGGER.info("The box was created: {}", box);
 
         return box;
     }
 
     @Override
     public List<BoxDto> findBoxesDtoByGameId(Long gameId) {
-        LOGGER.info(String.format("Trying to find BoxDtos by gameId = %s", gameId));
+        LOGGER.info("Trying to find BoxDtos by gameId = {}", gameId);
         return findBoxesByGameId(gameId).stream()
                 .map(BoxDto::of)
                 .collect(Collectors.toList());
@@ -50,7 +51,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public List<BoxDto> findUnopenedBoxesDtoByGameId(Long gameId) {
-        LOGGER.info(String.format("Trying to find unopened BoxDtos by gameId = %s", gameId));
+        LOGGER.info("Trying to find unopened BoxDtos by gameId = {}", gameId);
         return findBoxesByGameId(gameId).stream()
                 .filter(box -> !box.getOpened())
                 .map(BoxDto::of)
@@ -59,7 +60,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public BoxDto pickBox(Long gameId, Long boxId) {
-        LOGGER.info(String.format("Picking box with gameId = %s nad boxId = %s", gameId, boxId));
+        LOGGER.info("Picking box with gameId = {} nad boxId = {}", gameId, boxId);
         List<Box> boxes = findBoxesByGameId(gameId);
 
         Box pickedBox = boxes.stream()
@@ -83,7 +84,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Box findPickedBoxByGameId(Long gameId) {
-        LOGGER.info(String.format("Trying to find picked box by gameId = %s", gameId));
+        LOGGER.info("Trying to find picked box by gameId = {}", gameId);
         Box box = boxRepository.findByGameIdAndPicked(gameId, true);
 
         if (box == null) {
@@ -94,7 +95,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Box findUnopenedAndUnpickedBoxByGameId(Long gameId) {
-        LOGGER.info(String.format("Trying to find unopened and unpicked box by gameId = %s", gameId));
+        LOGGER.info("Trying to find unopened and unpicked box by gameId = {}", gameId);
         Box box = boxRepository.findByGameIdAndOpenedAndPicked(gameId, false, false);
 
         if (box == null) {
@@ -106,16 +107,15 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public List<Box> updateAll(List<Box> boxes) {
-        LOGGER.info(String.format("Trying to update %s boxes", boxes.size()));
+        LOGGER.info("Trying to update {} boxes", boxes.size());
         return boxRepository.saveAll(boxes);
     }
 
     @Override
     public List<Box> createBoxes(Game game, int numberOfBoxes) {
-        LOGGER.info(String.format("Trying to create %s boxes with gameId = %s", numberOfBoxes, game.getId()));
+        LOGGER.info("Trying to create {} boxes with gameId = {}", numberOfBoxes, game.getId());
         List<Box> createdBoxes = new ArrayList<>();
-        Random random = new Random();
-        int winningBox = random.nextInt(numberOfBoxes);
+        int winningBox = RANDOM.nextInt(numberOfBoxes);
 
         for (int i = 0; i < numberOfBoxes; i++) {
             Box createdBox;
@@ -131,26 +131,25 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public List<Box> openAllBoxesExceptOne(List<Box> boxes, Box pickedBox) {
-        LOGGER.info(String.format("Opening all boxes except one. Boxes size is %s", boxes.size()));
-        if (!pickedBox.getWinning()) {
-            boxes.stream()
-                    .filter(box -> !box.getWinning())
-                    .forEach(box -> box.setOpened(true));
-        } else {
-            Random random = new Random();
-            int numberOfUnopenedBox = random.nextInt(boxes.size());
-
+        LOGGER.info("Opening all boxes except one. Boxes size is {}", boxes.size());
+        boolean winning = pickedBox.getWinning();
+        if (Boolean.TRUE.equals(winning)) {
+            int numberOfUnopenedBox = RANDOM.nextInt(boxes.size());
             for (int i = 0; i < boxes.size(); i++) {
                 if (i != numberOfUnopenedBox) {
                     boxes.get(i).setOpened(true);
                 }
             }
+        } else {
+            boxes.stream()
+                    .filter(box -> !box.getWinning())
+                    .forEach(box -> box.setOpened(true));
         }
         return boxes;
     }
 
     private List<Box> findBoxesByGameId(Long gameId) {
-        LOGGER.info(String.format("Trying to find box by gameId = %s", gameId));
+        LOGGER.info("Trying to find box by gameId = {}", gameId);
 
         List<Box> boxes = boxRepository.findByGameId(gameId);
 

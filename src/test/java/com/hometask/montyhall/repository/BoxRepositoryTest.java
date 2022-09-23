@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class BoxRepositoryTest {
+class BoxRepositoryTest {
 
     @Autowired
     private BoxRepository boxRepository;
@@ -60,7 +60,7 @@ public class BoxRepositoryTest {
         boxRepository.saveAll(Arrays.asList(box1, box2, box3));
         List<Box> receivedBoxesFromDatabase = boxRepository.findByGameId(game.getId());
 
-        assertEquals(receivedBoxesFromDatabase.size(), 3);
+        assertEquals(3, receivedBoxesFromDatabase.size());
 
         assertNotNull(receivedBoxesFromDatabase.get(0).getId());
         assertEquals(receivedBoxesFromDatabase.get(0).getOpened(), box1.getOpened());
@@ -88,7 +88,7 @@ public class BoxRepositoryTest {
     void tryToFindByGameIdWhenGameDoesNotExistTest() {
         List<Box> receivedBoxesFromDatabase = boxRepository.findByGameId(10L);
 
-        assertEquals(receivedBoxesFromDatabase.size(), 0);
+        assertEquals(0, receivedBoxesFromDatabase.size());
     }
 
     @Test

@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class StatisticControllerIT {
+class StatisticControllerIT {
 
     private static final int NUMBER_OF_BOXES = 3;
     private static final int NUMBER_OF_GAMES = 1000000;
