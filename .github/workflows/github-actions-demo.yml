@@ -1,5 +1,5 @@
 name: Java CI
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+#run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on:
   push:
     branches:
@@ -23,14 +23,6 @@ jobs:
           path:  ~/.m2/repository
           key: ${{ runner.os }}-cache-${{ github.run_id }}${{ github.run_number }}
           restore-keys: ${{ runner.os }}-cache-
-
-#      # Create root/m2 package
-#      - name: Create m2
-#        run: sudo mkdir -p /root/.m2
-
-#      # Create m2/repository package
-#      - name: Create m2
-#        run: sudo mkdir -p /github/workspace/m2/repository
 
       # Set up  JDK 17
       - name: Set up JDK 17
