@@ -1,3 +1,6 @@
+#  Monty Hall
+
+[![Java CI](https://github.com/YauhienMaciuk/montyhall/actions/workflows/ci.yaml/badge.svg)](https://github.com/YauhienMaciuk/montyhall/actions/workflows/ci.yaml/badge.svg)
 
 How build MontyHall app:
 1) git clone https://github.com/YauhienMaciuk/montyhall.git
