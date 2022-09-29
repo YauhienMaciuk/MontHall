@@ -26,7 +26,7 @@ jobs:
 
       # Create m2/repository package
       - name: Create m2
-        run: mkdir -p /github/workspace/m2/repository
+        run: sudo mkdir -p /github/workspace/m2/repository
 
       # Set up  JDK 17
       - name: Set up JDK 17
