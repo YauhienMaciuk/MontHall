@@ -1,0 +1,22 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="20220930-0" author="Yauheni Matsiuk">
+        <sql>
+            CREATE TABLE IF NOT EXISTS statistic (
+            id BIGSERIAL NOT NULL CONSTRAINT pk_statistic PRIMARY KEY,
+            boxes_number bigint NOT NULL,
+            games_number bigint NOT NULL,
+            change_origin_choice_win_percentage numeric NOT NULL,
+            stick_to_origin_choice_win_percentage numeric NOT NULL
+            );
+        </sql>
+        <rollback>
+            DROP TABLE statistic;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

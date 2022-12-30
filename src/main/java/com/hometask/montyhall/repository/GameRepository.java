@@ -1,7 +1,14 @@
 package com.hometask.montyhall.repository;
 
 import com.hometask.montyhall.entity.Game;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface GameRepository extends JpaRepository<Game, Long> {
+import java.util.Optional;
+
+public interface GameRepository {
+
+    Long save(Game game);
+
+    void updateStatus(Long gameId, String gameStatus);
+
+    Optional<Game> findById(Long id);
 }

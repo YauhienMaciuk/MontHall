@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/monty_hall_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    user: postgres
+    password: postgres
+    url: ${spring.datasource.url}?prepareThreshold=0
+    change-log: classpath:db/changelog-master.xml
+
+springdoc:
+  swagger-ui:
+    path: /monty-hall-swagger-ui/index.html

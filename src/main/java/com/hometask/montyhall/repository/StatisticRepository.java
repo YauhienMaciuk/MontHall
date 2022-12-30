@@ -1,9 +1,12 @@
 package com.hometask.montyhall.repository;
 
 import com.hometask.montyhall.entity.Statistic;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StatisticRepository extends JpaRepository<Statistic, Long> {
+import java.util.Optional;
 
-    Statistic findByNumberOfBoxesAndNumberOfGames(int numberOfBoxes, int numberOfGames);
+public interface StatisticRepository {
+
+    Long save(Statistic statistic);
+
+    Optional<Statistic> findByNumberOfBoxesAndNumberOfGames(int numberOfBoxes, int numberOfGames);
 }

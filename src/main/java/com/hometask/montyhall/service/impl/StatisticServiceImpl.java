@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -27,20 +29,18 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public Statistic findByNumberOfBoxesAndNumberOfGames(int numberOfBoxes, int numberOfGames) {
-        LOGGER.info("Trying to find Statistic with numberOfBoxes = {} and numberOfGames = {}",
+        LOGGER.info("Find the Statistic by numberOfBoxes = {} and numberOfGames = {}",
                 numberOfBoxes, numberOfGames);
-        Statistic statistic = statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames);
 
-        if (statistic == null) {
-            throw new NoSuchEntityException(String.format("Could not find Statistic with numberOfBoxes = %s and " +
-                    "numberOfGames = %s", numberOfBoxes, numberOfGames));
-        }
-        return statistic;
+        return statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames).orElseThrow(
+                () -> new NoSuchEntityException(String.format("Could not find Statistic with numberOfBoxes = %s and " +
+                        "numberOfGames = %s", numberOfBoxes, numberOfGames))
+        );
     }
 
     @Override
     public Statistic createStatistic(StatisticDto statisticDto) {
-        LOGGER.info("Trying to create new Statistic with when statisticDto: {}", statisticDto);
+        LOGGER.info("Create the Statistic by statisticDto: {}", statisticDto);
         int numberOfBoxes = statisticDto.getNumberOfBoxes();
         int numberOfGames = statisticDto.getNumberOfGames();
 
@@ -59,25 +59,28 @@ public class StatisticServiceImpl implements StatisticService {
 
         PercentageCalculator percentageCalculator = new PercentageCalculator();
 
-        Statistic statistic = new Statistic();
-        statistic.setNumberOfBoxes(numberOfBoxes);
-        statistic.setNumberOfGames(numberOfGames);
+        BigDecimal originChoiceWinPercentage = percentageCalculator.count(changeOriginChoiceWinPercentage, numberOfGames);
+        BigDecimal nameMe = percentageCalculator.count(stickToOriginChoiceWinPercentage, numberOfGames);
 
-        statistic.setChangeOriginChoiceWinPercentage(percentageCalculator
-                .count(changeOriginChoiceWinPercentage, numberOfGames));
+        Statistic statistic = Statistic.builder()
+                .numberOfBoxes(numberOfBoxes)
+                .numberOfGames(numberOfGames)
+                .changeOriginChoiceWinPercentage(originChoiceWinPercentage)
+                .stickToOriginChoiceWinPercentage(nameMe)
+                .build();
 
-        statistic.setStickToOriginChoiceWinPercentage(percentageCalculator
-                .count(stickToOriginChoiceWinPercentage, numberOfGames));
 
-        statistic = statisticRepository.save(statistic);
+        Long statisticId = statisticRepository.save(statistic);
         LOGGER.info("The Statistic was created: {}", statistic);
 
-        return statistic;
+        return statistic.toBuilder()
+                .id(statisticId)
+                .build();
     }
 
     private void checkIfStatisticAlreadyExists(int numberOfBoxes, int numberOfGames) {
-        Statistic statistic = statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames);
-        if (statistic != null) {
+        Optional<Statistic> statistic = statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames);
+        if (statistic.isPresent()) {
             throw new GameResultException(String.format("The Statistic with numberOfBoxes = %s and " +
                     "numberOfGames = %s has already existed", numberOfBoxes, numberOfGames));
         }

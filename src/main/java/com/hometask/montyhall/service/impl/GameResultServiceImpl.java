@@ -37,7 +37,7 @@ public class GameResultServiceImpl implements GameResultService {
 
     @Override
     public GameResult createGameResult(Long gameId, boolean changePickedBox) {
-        LOGGER.info("Trying to create GameResult with gameId = {} and changePickedBox = {}", gameId, changePickedBox);
+        LOGGER.info("Create the GameResult by gameId = {} and changePickedBox = {}", gameId, changePickedBox);
         Game game = gameService.findById(gameId);
         GameStatus gameStatus = game.getStatus();
 
@@ -47,31 +47,37 @@ public class GameResultServiceImpl implements GameResultService {
 
         List<Box> changedBoxes = new ArrayList<>();
 
-        GameResult gameResult = new GameResult();
-        gameResult.setGame(game);
-        gameResult.setPickedBoxWasChanged(changePickedBox);
+        boolean winning = false;
 
         if (changePickedBox) {
             Box rePickedBox = boxService.findUnopenedAndUnpickedBoxByGameId(gameId);
-            rePickedBox.setPicked(true);
-            rePickedBox.setOpened(true);
-            boolean winning = rePickedBox.getWinning();
-            gameResult.setWin(winning);
+            rePickedBox = rePickedBox.toBuilder()
+                    .picked(true)
+                    .opened(true)
+                    .build();
+            winning = rePickedBox.getWinning();
             changedBoxes.add(rePickedBox);
         } else {
             Box pickedBox = boxService.findPickedBoxByGameId(gameId);
-            pickedBox.setOpened(true);
-            Boolean winning = pickedBox.getWinning();
-            gameResult.setWin(winning);
+            pickedBox = pickedBox.toBuilder()
+                    .opened(true)
+                    .build();
             changedBoxes.add(pickedBox);
         }
 
-        gameResult = gameResultRepository.save(gameResult);
-        LOGGER.info("The GameResult was created = {}", gameResult);
+        GameResult gameResult = GameResult.builder()
+                .gameId(gameId)
+                .pickedBoxWasChanged(changePickedBox)
+                .win(winning)
+                .build();
+
+        Long gameResultId = gameResultRepository.save(gameResult);
 
         gameService.changeGameStatus(gameId, GameStatus.FINISHED);
         boxService.updateAll(changedBoxes);
 
-        return gameResult;
+        return gameResult.toBuilder()
+                .id(gameResultId)
+                .build();
     }
 }

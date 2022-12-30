@@ -12,8 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -38,10 +37,12 @@ class StatisticServiceImplTest {
     void should_find_by_number_of_boxes_and_number_of_games() {
         int numberOfBoxes = 3;
         int numberOfGames = 1;
-        Statistic statistic = new Statistic();
-        statistic.setNumberOfBoxes(numberOfBoxes);
-        statistic.setNumberOfGames(numberOfGames);
-        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames)).thenReturn(statistic);
+        Statistic statistic = Statistic.builder()
+                .numberOfBoxes(numberOfBoxes)
+                .numberOfGames(numberOfGames)
+                .build();
+        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames))
+                .thenReturn(Optional.of(statistic));
 
         Statistic actual = statisticService.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames);
 
@@ -54,11 +55,8 @@ class StatisticServiceImplTest {
     void should_throw_when_trying_to_find_statistic_by_number_of_boxes_and_number_of_games() {
         int numberOfBoxes = 3;
         int numberOfGames = 1;
-        Statistic statistic = new Statistic();
-        statistic.setNumberOfBoxes(numberOfBoxes);
-        statistic.setNumberOfGames(numberOfGames);
         String errMsg = "Could not find Statistic with numberOfBoxes = " + numberOfBoxes + " and numberOfGames = " + numberOfGames;
-        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames)).thenReturn(null);
+        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(NoSuchEntityException.class).isThrownBy(() ->
                 statisticService.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames)
@@ -76,17 +74,11 @@ class StatisticServiceImplTest {
         statisticDto.setNumberOfBoxes(numberOfBoxes);
         statisticDto.setNumberOfGames(numberOfGames);
 
-        BigDecimal changeOriginChoiceWinPercentage = BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal stickToOriginChoiceWinPercentage = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        Long statisticId = 1L;
 
-        Statistic statistic = new Statistic();
-        statistic.setNumberOfBoxes(numberOfBoxes);
-        statistic.setNumberOfGames(numberOfGames);
-        statistic.setChangeOriginChoiceWinPercentage(changeOriginChoiceWinPercentage);
-        statistic.setStickToOriginChoiceWinPercentage(stickToOriginChoiceWinPercentage);
-
-        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames)).thenReturn(null);
-        when(statisticRepository.save(any(Statistic.class))).thenReturn(statistic);
+        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames))
+                .thenReturn(Optional.empty());
+        when(statisticRepository.save(any(Statistic.class))).thenReturn(statisticId);
 
         Statistic actual = statisticService.createStatistic(statisticDto);
 
@@ -108,10 +100,12 @@ class StatisticServiceImplTest {
         statisticDto.setNumberOfBoxes(numberOfBoxes);
         statisticDto.setNumberOfGames(numberOfGames);
 
-        Statistic statistic = new Statistic();
+        Statistic statistic = Statistic.builder()
+                .build();
         String errMsg = "The Statistic with numberOfBoxes = " + numberOfBoxes + " and numberOfGames = " + numberOfGames + " has already existed";
 
-        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames)).thenReturn(statistic);
+        when(statisticRepository.findByNumberOfBoxesAndNumberOfGames(numberOfBoxes, numberOfGames))
+                .thenReturn(Optional.of(statistic));
 
         assertThatExceptionOfType(GameResultException.class).isThrownBy(() ->
                 statisticService.createStatistic(statisticDto)

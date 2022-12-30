@@ -1,0 +1,24 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="20221003-1" author="Yauheni Matsiuk">
+        <sql>
+            CREATE TABLE IF NOT EXISTS box (
+            id BIGSERIAL NOT NULL CONSTRAINT pk_box PRIMARY KEY,
+            game_id BIGINT NOT NULL,
+            opened BOOLEAN NOT NULL,
+            winning BOOLEAN NOT NULL,
+            picked BOOLEAN NOT NULL,
+
+            FOREIGN KEY (game_id) REFERENCES game (id)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE box;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

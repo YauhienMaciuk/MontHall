@@ -2,9 +2,7 @@ package com.hometask.montyhall.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hometask.montyhall.dto.ChooseDecision;
-import com.hometask.montyhall.entity.Game;
 import com.hometask.montyhall.entity.GameResult;
-import com.hometask.montyhall.entity.GameStatus;
 import com.hometask.montyhall.service.GameResultService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,16 +42,14 @@ class GameResultControllerIT {
         chooseDecision.setChangePickedBox(changePickedBox);
 
         long gameId = 1L;
-        Game game = new Game();
-        game.setId(gameId);
-        game.setStatus(GameStatus.IN_PROGRESS);
 
         long gameResultId = 4L;
-        GameResult gameResult = new GameResult();
-        gameResult.setId(gameResultId);
-        gameResult.setGame(game);
-        gameResult.setPickedBoxWasChanged(changePickedBox);
-        gameResult.setWin(true);
+        GameResult gameResult = GameResult.builder()
+                .id(gameResultId)
+                .gameId(gameId)
+                .pickedBoxWasChanged(changePickedBox)
+                .win(true)
+                .build();
 
         when(gameResultService.createGameResult(gameId, changePickedBox)).thenReturn(gameResult);
 
@@ -71,5 +67,4 @@ class GameResultControllerIT {
 
         verify(gameResultService).createGameResult(gameId, changePickedBox);
     }
-
 }

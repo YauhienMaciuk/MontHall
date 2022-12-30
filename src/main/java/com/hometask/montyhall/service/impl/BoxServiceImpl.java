@@ -2,10 +2,10 @@ package com.hometask.montyhall.service.impl;
 
 import com.hometask.montyhall.dto.BoxDto;
 import com.hometask.montyhall.entity.Box;
-import com.hometask.montyhall.entity.Game;
 import com.hometask.montyhall.exception.NoSuchEntityException;
 import com.hometask.montyhall.repository.BoxRepository;
 import com.hometask.montyhall.service.BoxService;
+import com.hometask.montyhall.util.BoxUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,22 +28,24 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public Box createBox(Game game, boolean winning) {
-        Box box = new Box();
-        box.setGame(game);
-        box.setOpened(false);
-        box.setPicked(false);
-        box.setWinning(winning);
+    public Box createBox(Long gameId, boolean winning) {
+        Box box = Box.builder()
+                .gameId(gameId)
+                .opened(false)
+                .picked(false)
+                .winning(winning)
+                .build();
 
-        box = boxRepository.save(box);
-        LOGGER.info("The box was created: {}", box);
+        Long boxId = boxRepository.save(box);
 
-        return box;
+        return box.toBuilder()
+                .id(boxId)
+                .build();
     }
 
     @Override
     public List<BoxDto> findBoxesDtoByGameId(Long gameId) {
-        LOGGER.info("Trying to find BoxDtos by gameId = {}", gameId);
+        LOGGER.info("Find BoxDtos by gameId = {}", gameId);
         return findBoxesByGameId(gameId).stream()
                 .map(BoxDto::of)
                 .collect(Collectors.toList());
@@ -51,7 +53,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public List<BoxDto> findUnopenedBoxesDtoByGameId(Long gameId) {
-        LOGGER.info("Trying to find unopened BoxDtos by gameId = {}", gameId);
+        LOGGER.info("Find unopened BoxDtos by gameId = {}", gameId);
         return findBoxesByGameId(gameId).stream()
                 .filter(box -> !box.getOpened())
                 .map(BoxDto::of)
@@ -60,7 +62,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public BoxDto pickBox(Long gameId, Long boxId) {
-        LOGGER.info("Picking box with gameId = {} nad boxId = {}", gameId, boxId);
+        LOGGER.info("Pick the box with gameId = {} and boxId = {}", gameId, boxId);
         List<Box> boxes = findBoxesByGameId(gameId);
 
         Box pickedBox = boxes.stream()
@@ -68,13 +70,17 @@ public class BoxServiceImpl implements BoxService {
                 .findFirst()
                 .orElseThrow(() -> new NoSuchEntityException("Could not find box by boxId = " + boxId));
 
-        pickedBox.setPicked(true);
+        pickedBox = pickedBox.toBuilder()
+                .picked(true)
+                .build();
 
         List<Box> boxesWithoutPickedBox = boxes.stream()
                 .filter(b -> !b.getId().equals(boxId))
                 .collect(Collectors.toList());
 
-        List<Box> openedBoxesExceptOne = openAllBoxesExceptOne(boxesWithoutPickedBox, pickedBox);
+        List<Box> openedBoxesExceptOne = Boolean.TRUE.equals(pickedBox.getWinning()) ?
+                BoxUtil.openAllBoxesExceptRandomOne(boxesWithoutPickedBox) : BoxUtil.openAllBoxesExceptWinningOne(boxesWithoutPickedBox);
+
         openedBoxesExceptOne.add(pickedBox);
 
         updateAll(openedBoxesExceptOne);
@@ -84,72 +90,52 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Box findPickedBoxByGameId(Long gameId) {
-        LOGGER.info("Trying to find picked box by gameId = {}", gameId);
-        Box box = boxRepository.findByGameIdAndPicked(gameId, true);
-
-        if (box == null) {
-            throw new NoSuchEntityException(String.format("Could not find the picked box with gameId = %s", gameId));
-        }
-        return box;
+        LOGGER.info("Find the picked box by gameId = {}", gameId);
+        return boxRepository.findPickedBoxByGameId(gameId).orElseThrow(
+                () -> new NoSuchEntityException("Could not find the picked box with gameId=" + gameId)
+        );
     }
 
     @Override
     public Box findUnopenedAndUnpickedBoxByGameId(Long gameId) {
-        LOGGER.info("Trying to find unopened and unpicked box by gameId = {}", gameId);
-        Box box = boxRepository.findByGameIdAndOpenedAndPicked(gameId, false, false);
+        LOGGER.info("Find the unopened and unpicked box by gameId = {}", gameId);
 
-        if (box == null) {
-            throw new NoSuchEntityException(String.format("Could not find the unopened and unpicked box " +
-                    "with gameId = %s", gameId));
-        }
-        return box;
+        List<Box> boxes = boxRepository.findByGameId(gameId);
+
+        return boxes.stream()
+                .filter(box -> box.getOpened() == Boolean.FALSE && box.getPicked() == Boolean.FALSE)
+                .findAny()
+                .orElseThrow(
+                        () -> new NoSuchEntityException("Could not find the unopened and unpicked box with gameId=" + gameId)
+                );
     }
 
     @Override
-    public List<Box> updateAll(List<Box> boxes) {
-        LOGGER.info("Trying to update {} boxes", boxes.size());
-        return boxRepository.saveAll(boxes);
+    public void updateAll(List<Box> boxes) {
+        LOGGER.info("Update {} boxes", boxes.size());
+        boxRepository.updateAll(boxes);
     }
 
     @Override
-    public List<Box> createBoxes(Game game, int numberOfBoxes) {
-        LOGGER.info("Trying to create {} boxes with gameId = {}", numberOfBoxes, game.getId());
+    public List<Box> createBoxes(Long gameId, int numberOfBoxes) {
+        LOGGER.info("Create {} boxes with gameId = {}", numberOfBoxes, gameId);
         List<Box> createdBoxes = new ArrayList<>();
         int winningBox = RANDOM.nextInt(numberOfBoxes);
 
         for (int i = 0; i < numberOfBoxes; i++) {
             Box createdBox;
             if (winningBox == i) {
-                createdBox = createBox(game, true);
+                createdBox = createBox(gameId, true);
             } else {
-                createdBox = createBox(game, false);
+                createdBox = createBox(gameId, false);
             }
             createdBoxes.add(createdBox);
         }
         return createdBoxes;
     }
 
-    @Override
-    public List<Box> openAllBoxesExceptOne(List<Box> boxes, Box pickedBox) {
-        LOGGER.info("Opening all boxes except one. Boxes size is {}", boxes.size());
-        boolean winning = pickedBox.getWinning();
-        if (Boolean.TRUE.equals(winning)) {
-            int numberOfUnopenedBox = RANDOM.nextInt(boxes.size());
-            for (int i = 0; i < boxes.size(); i++) {
-                if (i != numberOfUnopenedBox) {
-                    boxes.get(i).setOpened(true);
-                }
-            }
-        } else {
-            boxes.stream()
-                    .filter(box -> !box.getWinning())
-                    .forEach(box -> box.setOpened(true));
-        }
-        return boxes;
-    }
-
     private List<Box> findBoxesByGameId(Long gameId) {
-        LOGGER.info("Trying to find box by gameId = {}", gameId);
+        LOGGER.info("Find the box by gameId = {}", gameId);
 
         List<Box> boxes = boxRepository.findByGameId(gameId);
 

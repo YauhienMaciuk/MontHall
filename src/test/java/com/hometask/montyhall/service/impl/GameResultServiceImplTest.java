@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.hometask.montyhall.entity.GameStatus.IN_PROGRESS;
@@ -29,7 +29,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GameResultServiceImplTest {
 
-    private static final Long GAME_ID = 1l;
+    private static final Long GAME_ID = 1L;
+    private static final Long GAME_RESULT_ID = 2L;
 
     @Mock
     private GameResultRepository gameResultRepository;
@@ -47,32 +48,39 @@ class GameResultServiceImplTest {
 
     @Test
     void should_create_game_result_without_changing_picked_box() {
-        Game game = new Game();
-
+        Game game = Game.builder()
+                .id(GAME_ID)
+                .status(IN_PROGRESS)
+                .build();
         boolean changePickedBox = false;
-        boolean winning = true;
-
-        GameResult gameResult = new GameResult();
-        gameResult.setGame(game);
-        gameResult.setPickedBoxWasChanged(changePickedBox);
-        gameResult.setWin(winning);
-        game.setStatus(IN_PROGRESS);
-
-        Box box = new Box();
-        box.setGame(game);
-        box.setOpened(false);
-        box.setPicked(true);
-        box.setWinning(winning);
-
-        List<Box> changedBoxes = Arrays.asList(box);
-
+        GameResult gameResult = GameResult.builder()
+                .gameId(GAME_ID)
+                .pickedBoxWasChanged(changePickedBox)
+                .win(false)
+                .build();
+        GameResult expectedGameResult = GameResult.builder()
+                .id(GAME_RESULT_ID)
+                .gameId(GAME_ID)
+                .pickedBoxWasChanged(changePickedBox)
+                .win(false)
+                .build();
+        Box box = Box.builder()
+                .gameId(GAME_ID)
+                .opened(false)
+                .picked(true)
+                .winning(true)
+                .build();
         when(gameService.findById(GAME_ID)).thenReturn(game);
         when(boxService.findPickedBoxByGameId(GAME_ID)).thenReturn(box);
-        when(gameResultRepository.save(gameResult)).thenReturn(gameResult);
+        box = box.toBuilder()
+                .opened(true)
+                .build();
+        List<Box> changedBoxes = Collections.singletonList(box);
+        when(gameResultRepository.save(gameResult)).thenReturn(GAME_RESULT_ID);
 
         GameResult actual = gameResultService.createGameResult(GAME_ID, changePickedBox);
 
-        assertThat(actual).isEqualTo(gameResult);
+        assertThat(actual).isEqualTo(expectedGameResult);
 
         verify(gameService).findById(GAME_ID);
         verify(boxService).findPickedBoxByGameId(GAME_ID);
@@ -83,32 +91,41 @@ class GameResultServiceImplTest {
 
     @Test
     void should_create_game_result_and_change_picked_box() {
-        Game game = new Game();
-
+        Game game = Game.builder()
+                .id(GAME_ID)
+                .status(IN_PROGRESS)
+                .build();
         boolean changePickedBox = true;
         boolean winning = true;
-
-        GameResult gameResult = new GameResult();
-        gameResult.setGame(game);
-        gameResult.setPickedBoxWasChanged(changePickedBox);
-        gameResult.setWin(winning);
-        game.setStatus(IN_PROGRESS);
-
-        Box box = new Box();
-        box.setGame(game);
-        box.setOpened(false);
-        box.setPicked(false);
-        box.setWinning(winning);
-
-        List<Box> changedBoxes = Arrays.asList(box);
-
+        GameResult gameResult = GameResult.builder()
+                .gameId(GAME_ID)
+                .pickedBoxWasChanged(changePickedBox)
+                .win(winning)
+                .build();
+        GameResult expectedGameResult = GameResult.builder()
+                .id(GAME_RESULT_ID)
+                .gameId(GAME_ID)
+                .pickedBoxWasChanged(changePickedBox)
+                .win(winning)
+                .build();
+        Box box = Box.builder()
+                .gameId(GAME_ID)
+                .opened(false)
+                .picked(false)
+                .winning(winning)
+                .build();
         when(gameService.findById(GAME_ID)).thenReturn(game);
         when(boxService.findUnopenedAndUnpickedBoxByGameId(GAME_ID)).thenReturn(box);
-        when(gameResultRepository.save(gameResult)).thenReturn(gameResult);
+        box = box.toBuilder()
+                .opened(true)
+                .picked(true)
+                .build();
+        List<Box> changedBoxes = Collections.singletonList(box);
+        when(gameResultRepository.save(gameResult)).thenReturn(GAME_RESULT_ID);
 
         GameResult actual = gameResultService.createGameResult(GAME_ID, changePickedBox);
 
-        assertThat(actual).isEqualTo(gameResult);
+        assertThat(actual).isEqualTo(expectedGameResult);
 
         verify(gameService).findById(GAME_ID);
         verify(boxService).findUnopenedAndUnpickedBoxByGameId(GAME_ID);
@@ -120,9 +137,9 @@ class GameResultServiceImplTest {
     @ParameterizedTest
     @EnumSource(mode = EnumSource.Mode.EXCLUDE, names = {"IN_PROGRESS"}, value = GameStatus.class)
     void should_throw_when_game_status_is_not_in_progress(GameStatus status) {
-        Game game = new Game();
-
-        game.setStatus(status);
+        Game game = Game.builder()
+                .status(status)
+                .build();
 
         when(gameService.findById(GAME_ID)).thenReturn(game);
 

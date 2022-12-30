@@ -47,12 +47,13 @@ class StatisticControllerIT {
         long statisticId = 1L;
         BigDecimal winPercentageAfterChangeOriginChoice = BigDecimal.valueOf(66.33);
         BigDecimal winPercentageAfterStickToOriginChoice = BigDecimal.valueOf(33.37);
-        Statistic statistic = new Statistic();
-        statistic.setId(statisticId);
-        statistic.setNumberOfBoxes(NUMBER_OF_BOXES);
-        statistic.setNumberOfGames(NUMBER_OF_GAMES);
-        statistic.setChangeOriginChoiceWinPercentage(winPercentageAfterChangeOriginChoice);
-        statistic.setStickToOriginChoiceWinPercentage(winPercentageAfterStickToOriginChoice);
+        Statistic statistic = Statistic.builder()
+                .id(statisticId)
+                .numberOfBoxes(NUMBER_OF_BOXES)
+                .numberOfGames(NUMBER_OF_GAMES)
+                .changeOriginChoiceWinPercentage(winPercentageAfterChangeOriginChoice)
+                .stickToOriginChoiceWinPercentage(winPercentageAfterStickToOriginChoice)
+                .build();
 
         when(statisticService.findByNumberOfBoxesAndNumberOfGames(NUMBER_OF_BOXES, NUMBER_OF_GAMES))
                 .thenReturn(statistic);
@@ -91,21 +92,20 @@ class StatisticControllerIT {
 
     @Test
     void should_create_statistic() throws Exception {
-        int numberOfBoxes = 3;
-        int numberOfGames = 1000000;
         StatisticDto statisticDto = new StatisticDto();
-        statisticDto.setNumberOfBoxes(numberOfBoxes);
-        statisticDto.setNumberOfGames(numberOfGames);
+        statisticDto.setNumberOfBoxes(NUMBER_OF_BOXES);
+        statisticDto.setNumberOfGames(NUMBER_OF_GAMES);
 
         long statisticId = 1L;
         BigDecimal winPercentageAfterChangeOriginChoice = BigDecimal.valueOf(66.33);
         BigDecimal winPercentageAfterStickToOriginChoice = BigDecimal.valueOf(33.37);
-        Statistic statistic = new Statistic();
-        statistic.setId(statisticId);
-        statistic.setNumberOfBoxes(numberOfBoxes);
-        statistic.setNumberOfGames(numberOfGames);
-        statistic.setChangeOriginChoiceWinPercentage(winPercentageAfterChangeOriginChoice);
-        statistic.setStickToOriginChoiceWinPercentage(winPercentageAfterStickToOriginChoice);
+        Statistic statistic = Statistic.builder()
+                .id(statisticId)
+                .numberOfBoxes(NUMBER_OF_BOXES)
+                .numberOfGames(NUMBER_OF_GAMES)
+                .changeOriginChoiceWinPercentage(winPercentageAfterChangeOriginChoice)
+                .stickToOriginChoiceWinPercentage(winPercentageAfterStickToOriginChoice)
+                .build();
 
         when(statisticService.createStatistic(statisticDto)).thenReturn(statistic);
 
@@ -127,14 +127,12 @@ class StatisticControllerIT {
 
     @Test
     void should_not_create_statistic_when_it_already_exists() throws Exception {
-        int numberOfBoxes = 3;
-        int numberOfGames = 1000000;
         StatisticDto statisticDto = new StatisticDto();
-        statisticDto.setNumberOfBoxes(numberOfBoxes);
-        statisticDto.setNumberOfGames(numberOfGames);
+        statisticDto.setNumberOfBoxes(NUMBER_OF_BOXES);
+        statisticDto.setNumberOfGames(NUMBER_OF_GAMES);
         String content = objectMapper.writeValueAsString(statisticDto);
-        String errMsg = "The Statistic with numberOfBoxes = " + numberOfBoxes + " and numberOfGames = "
-                + numberOfGames + " has already existed";
+        String errMsg = "The Statistic with numberOfBoxes = " + NUMBER_OF_BOXES + " and numberOfGames = "
+                + NUMBER_OF_GAMES + " has already existed";
         String expected = "\"" + errMsg + "\"";
         when(statisticService.createStatistic(statisticDto)).thenThrow(new GameResultException(errMsg));
 

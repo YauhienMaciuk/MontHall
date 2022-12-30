@@ -1,0 +1,17 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <preConditions>
+        <dbms type="postgresql"/>
+    </preConditions>
+
+    <include file="changelogs/20220929_create_schema.xml" relativeToChangelogFile="true"/>
+    <include file="changelogs/20220930_create_statistic_table.xml" relativeToChangelogFile="true"/>
+    <include file="changelogs/20221003_create_game_table.xml" relativeToChangelogFile="true"/>
+    <include file="changelogs/20221003_create_box_table.xml" relativeToChangelogFile="true"/>
+    <include file="changelogs/20221003_create_game_result_table.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

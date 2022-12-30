@@ -1,34 +1,35 @@
 version: '3'
 services:
-  mysqldb:
-    image: 'mysql'
-    container_name: mysqldb
-    ports:
-    - "3306:3306"
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_ROOT_USERNAME=root
-      - MYSQL_DATABASE=montyhalldb
-    volumes:
-      - sql:/docker-entrypoint-initdb.d/
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
-  montyhall-service:
+  montyhall:
     build: ./
     container_name: montyhall-service
     ports:
-    - "8080:8080"
+      - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/montyhalldb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://montyhall-database:5432/monty_hall_db
     restart: on-failure
     depends_on:
-      mysqldb:
+      database:
         condition: service_healthy
+
+  database:
+    container_name: montyhall-database
+    image: postgres:11.9
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: monty_hall_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - sql:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d monty_hall_db'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
 volumes:
   sql:

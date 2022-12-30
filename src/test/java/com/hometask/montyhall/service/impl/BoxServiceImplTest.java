@@ -2,7 +2,6 @@ package com.hometask.montyhall.service.impl;
 
 import com.hometask.montyhall.dto.BoxDto;
 import com.hometask.montyhall.entity.Box;
-import com.hometask.montyhall.entity.Game;
 import com.hometask.montyhall.exception.NoSuchEntityException;
 import com.hometask.montyhall.repository.BoxRepository;
 import com.hometask.montyhall.service.BoxService;
@@ -15,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class BoxServiceImplTest {
 
-    private static final long GAME_ID = 1l;
+    private static final long GAME_ID = 1L;
 
     @Mock
     private BoxRepository boxRepository;
@@ -37,42 +37,46 @@ class BoxServiceImplTest {
 
     @Test
     void should_create_box() {
-        Game game = new Game();
+        Long boxId = 2L;
         boolean winning = true;
 
-        Box box = new Box();
-        box.setGame(game);
-        box.setOpened(false);
-        box.setPicked(false);
-        box.setWinning(winning);
+        Box box = Box.builder()
+                .gameId(GAME_ID)
+                .opened(false)
+                .picked(false)
+                .winning(winning)
+                .build();
 
-        when(boxRepository.save(box)).thenReturn(box);
+        when(boxRepository.save(box)).thenReturn(boxId);
 
-        Box actual = boxService.createBox(game, winning);
+        Box actual = boxService.createBox(GAME_ID, winning);
 
+        //todo move verify to the button of the method
+        verify(boxRepository).save(box);
+        box = box.toBuilder()
+                .id(boxId)
+                .build();
         assertThat(actual).isEqualTo(box);
 
-        verify(boxRepository).save(box);
     }
 
     @Test
     void should_find_boxes_dto_by_game_id() {
-        Game game = new Game();
-        game.setId(GAME_ID);
+        long idOfOpenedBox = 2L;
+        Box box1 = Box.builder()
+                .id(idOfOpenedBox)
+                .gameId(GAME_ID)
+                .opened(true)
+                .picked(true)
+                .build();
 
-        Box box1 = new Box();
-        long idOfOpenedBox = 2l;
-        box1.setId(idOfOpenedBox);
-        box1.setOpened(true);
-        box1.setPicked(true);
-        box1.setGame(game);
-
-        Box box2 = new Box();
-        long idOfUnopenedBox = 3l;
-        box2.setId(idOfUnopenedBox);
-        box2.setOpened(false);
-        box2.setPicked(false);
-        box2.setGame(game);
+        long idOfUnopenedBox = 3L;
+        Box box2 = Box.builder()
+                .id(idOfUnopenedBox)
+                .gameId(GAME_ID)
+                .opened(false)
+                .picked(false)
+                .build();
 
         List<Box> boxes = Arrays.asList(box1, box2);
 
@@ -110,16 +114,18 @@ class BoxServiceImplTest {
 
     @Test
     void should_find_unopened_boxes_dto_by_game_id() {
-        Box box1 = new Box();
-        box1.setId(2l);
-        box1.setOpened(true);
-        box1.setPicked(true);
+        Box box1 = Box.builder()
+                .id(2L)
+                .opened(true)
+                .picked(true)
+                .build();
 
-        Box box2 = new Box();
-        long unopenedBoxId = 3l;
-        box2.setId(unopenedBoxId);
-        box2.setOpened(false);
-        box2.setPicked(false);
+        long unopenedBoxId = 3L;
+        Box box2 = Box.builder()
+                .id(unopenedBoxId)
+                .opened(false)
+                .picked(false)
+                .build();
 
         List<Box> boxes = Arrays.asList(box1, box2);
 
@@ -128,7 +134,7 @@ class BoxServiceImplTest {
         boxDto.setOpened(false);
         boxDto.setPicked(false);
 
-        List<BoxDto> expected = Arrays.asList(boxDto);
+        List<BoxDto> expected = Collections.singletonList(boxDto);
 
         when(boxRepository.findByGameId(GAME_ID)).thenReturn(boxes);
 
@@ -150,26 +156,29 @@ class BoxServiceImplTest {
 
     @Test
     void should_pick_box() {
-        long boxId = 2l;
+        long box1Id = 2L;
 
-        Box box1 = new Box();
-        box1.setId(2l);
-        box1.setOpened(false);
-        box1.setPicked(false);
-        box1.setWinning(true);
+        Box box1 = Box.builder()
+                .id(box1Id)
+                .opened(false)
+                .picked(false)
+                .winning(true)
+                .build();
 
-        Box box2 = new Box();
-        long unopenedBoxId = 3l;
-        box2.setId(unopenedBoxId);
-        box2.setOpened(false);
-        box2.setPicked(false);
-        box2.setWinning(false);
+        long unopenedBoxId = 3L;
+        Box box2 = Box.builder()
+                .id(unopenedBoxId)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
-        Box box3 = new Box();
-        box3.setId(4l);
-        box3.setOpened(false);
-        box3.setPicked(false);
-        box3.setWinning(false);
+        Box box3 = Box.builder()
+                .id(4L)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
         List<Box> boxes = Arrays.asList(box1, box2, box3);
 
@@ -178,38 +187,39 @@ class BoxServiceImplTest {
 
         when(boxRepository.findByGameId(GAME_ID)).thenReturn(boxes);
 
-        BoxDto actual = boxService.pickBox(GAME_ID, boxId);
+        BoxDto actual = boxService.pickBox(GAME_ID, box1Id);
 
         assertThat(actual).isEqualTo(expected);
 
         verify(boxRepository).findByGameId(GAME_ID);
-
-        List<Box> savedBoxes = Arrays.asList(box2, box3, box1);
-        verify(boxRepository).saveAll(savedBoxes);
+        verify(boxRepository).updateAll(any());
     }
 
     @Test
     void should_not_pick_box_when_box_does_not_exist() {
-        long idOfNotExistingBox = 0l;
+        long idOfNotExistingBox = 0L;
 
-        Box box1 = new Box();
-        box1.setId(2l);
-        box1.setOpened(false);
-        box1.setPicked(false);
-        box1.setWinning(true);
+        Box box1 = Box.builder()
+                .id(2L)
+                .opened(false)
+                .picked(false)
+                .winning(true)
+                .build();
 
-        Box box2 = new Box();
-        long unopenedBoxId = 3l;
-        box2.setId(unopenedBoxId);
-        box2.setOpened(false);
-        box2.setPicked(false);
-        box2.setWinning(false);
+        long unopenedBoxId = 3L;
+        Box box2 = Box.builder()
+                .id(unopenedBoxId)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
-        Box box3 = new Box();
-        box3.setId(4l);
-        box3.setOpened(false);
-        box3.setPicked(false);
-        box3.setWinning(false);
+        Box box3 = Box.builder()
+                .id(4L)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
         List<Box> boxes = Arrays.asList(box1, box2, box3);
 
@@ -223,12 +233,12 @@ class BoxServiceImplTest {
         ).withMessage("Could not find box by boxId = " + idOfNotExistingBox);
 
         verify(boxRepository).findByGameId(GAME_ID);
-        verify(boxRepository, never()).saveAll(any());
+        verify(boxRepository, never()).updateAll(any());
     }
 
     @Test
     void should_not_pick_box_when_game_does_not_exist() {
-        long boxId = 2l;
+        long boxId = 2L;
         when(boxRepository.findByGameId(GAME_ID)).thenReturn(Collections.emptyList());
 
         assertThatExceptionOfType(NoSuchEntityException.class).isThrownBy(() ->
@@ -240,153 +250,134 @@ class BoxServiceImplTest {
 
     @Test
     void should_find_picked_box_by_game_id() {
-        Box box = new Box();
-        long boxId = 2l;
-        box.setId(boxId);
-        box.setPicked(true);
-        when(boxRepository.findByGameIdAndPicked(GAME_ID, true)).thenReturn(box);
+        Box box = Box.builder()
+                .id(2L)
+                .picked(true)
+                .build();
+        when(boxRepository.findPickedBoxByGameId(GAME_ID)).thenReturn(Optional.of(box));
 
         Box actual = boxService.findPickedBoxByGameId(GAME_ID);
 
         assertThat(actual).isEqualTo(box);
 
-        verify(boxRepository).findByGameIdAndPicked(GAME_ID, true);
+        verify(boxRepository).findPickedBoxByGameId(GAME_ID);
     }
 
     @Test
     void should_not_find_picked_box_by_game_id_when_it_does_not_exist() {
-        when(boxRepository.findByGameIdAndPicked(GAME_ID, true)).thenReturn(null);
+        when(boxRepository.findPickedBoxByGameId(GAME_ID)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(NoSuchEntityException.class).isThrownBy(() ->
                 boxService.findPickedBoxByGameId(GAME_ID)
-        ).withMessage("Could not find the picked box with gameId = " + GAME_ID);
+        ).withMessage("Could not find the picked box with gameId=" + GAME_ID);
 
-        verify(boxRepository).findByGameIdAndPicked(GAME_ID, true);
+        verify(boxRepository).findPickedBoxByGameId(GAME_ID);
     }
 
     @Test
     void should_find_unopened_and_unpicked_box_by_game_id() {
-        Box box = new Box();
-        long boxId = 2l;
-        box.setId(boxId);
-        box.setPicked(true);
+        Box box = Box.builder()
+                .id(2L)
+                .opened(false)
+                .picked(false)
+                .build();
 
-        when(boxRepository.findByGameIdAndOpenedAndPicked(GAME_ID, false, false)).thenReturn(box);
+        when(boxRepository.findByGameId(GAME_ID)).thenReturn(List.of(box));
 
         Box actual = boxService.findUnopenedAndUnpickedBoxByGameId(GAME_ID);
 
         assertThat(actual).isEqualTo(box);
 
-        verify(boxRepository).findByGameIdAndOpenedAndPicked(GAME_ID, false, false);
+        verify(boxRepository).findByGameId(GAME_ID);
     }
 
     @Test
     void should_not_find_unopened_and_unpicked_box_by_game_id_when_it_does_not_exist() {
-        when(boxRepository.findByGameIdAndOpenedAndPicked(GAME_ID, false, false)).thenReturn(null);
+        when(boxRepository.findByGameId(GAME_ID)).thenReturn(Collections.EMPTY_LIST);
 
         assertThatExceptionOfType(NoSuchEntityException.class).isThrownBy(() ->
                 boxService.findUnopenedAndUnpickedBoxByGameId(GAME_ID)
-        ).withMessage("Could not find the unopened and unpicked box with gameId = " + GAME_ID);
+        ).withMessage("Could not find the unopened and unpicked box with gameId=" + GAME_ID);
 
-        verify(boxRepository).findByGameIdAndOpenedAndPicked(GAME_ID, false, false);
+        verify(boxRepository).findByGameId(GAME_ID);
     }
 
     @Test
     void should_update_boxes() {
-        Box box1 = new Box();
-        box1.setId(2l);
-        box1.setOpened(false);
-        box1.setPicked(false);
-        box1.setWinning(true);
+        Box box1 = Box.builder()
+                .id(2L)
+                .opened(false)
+                .picked(false)
+                .winning(true)
+                .build();
 
-        Box box2 = new Box();
-        long unopenedBoxId = 3l;
-        box2.setId(unopenedBoxId);
-        box2.setOpened(false);
-        box2.setPicked(false);
-        box2.setWinning(false);
+        Box box2 = Box.builder()
+                .id(3L)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
-        Box box3 = new Box();
-        box3.setId(4l);
-        box3.setOpened(false);
-        box3.setPicked(false);
-        box3.setWinning(false);
+        Box box3 = Box.builder()
+                .id(4L)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
         List<Box> boxes = Arrays.asList(box1, box2, box3);
 
-        when(boxRepository.saveAll(boxes)).thenReturn(boxes);
+        boxService.updateAll(boxes);
 
-        List<Box> actual = boxService.updateAll(boxes);
-
-        assertThat(actual).isEqualTo(boxes);
-
-        verify(boxRepository).saveAll(boxes);
+        verify(boxRepository).updateAll(boxes);
     }
 
     @Test
     void should_create_boxes() {
-        Game game = new Game();
-        Box box1 = new Box();
-        box1.setGame(game);
-        box1.setOpened(false);
-        box1.setPicked(false);
-        box1.setWinning(false);
+        Long firstBoxId = 2L;
+        Long secondBoxId = 3L;
+        Box firstBox = Box.builder()
+                .gameId(GAME_ID)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
-        Box box2 = new Box();
-        box2.setGame(game);
-        box2.setOpened(false);
-        box2.setPicked(false);
-        box2.setWinning(true);
+        Box secondBox = Box.builder()
+                .gameId(GAME_ID)
+                .opened(false)
+                .picked(false)
+                .winning(true)
+                .build();
 
-        Box box3 = new Box();
-        box3.setGame(game);
-        box3.setOpened(false);
-        box3.setPicked(false);
-        box3.setWinning(false);
+        Box thirdBox = Box.builder()
+                .gameId(GAME_ID)
+                .opened(false)
+                .picked(false)
+                .winning(false)
+                .build();
 
-        List<Box> expected = Arrays.asList(box1, box2, box3);
         int numberOfBoxes = 3;
 
-        when(boxRepository.save(box1)).thenReturn(box1);
-        when(boxRepository.save(box2)).thenReturn(box2);
+        when(boxRepository.save(firstBox)).thenReturn(firstBoxId);
+        when(boxRepository.save(secondBox)).thenReturn(secondBoxId);
 
-        List<Box> actual = boxService.createBoxes(game, numberOfBoxes);
+        Box expectedFirstBox = firstBox.toBuilder()
+                .id(firstBoxId)
+                .build();
+        Box expectedSecondBox = secondBox.toBuilder()
+                .id(secondBoxId)
+                .build();
+        Box expectedThirdBox = thirdBox.toBuilder()
+                .id(2L)
+                .build();
+        List<Box> expected = Arrays.asList(expectedFirstBox, expectedSecondBox, expectedThirdBox);
 
-        assertThat(actual).containsAll(expected);
-
-        verify(boxRepository, times(2)).save(box1);
-        verify(boxRepository).save(box2);
-    }
-
-    @Test
-    void should_open_all_boxes_except_one() {
-        Game game = new Game();
-        Box box1 = new Box();
-        box1.setGame(game);
-        box1.setOpened(false);
-        box1.setPicked(false);
-        box1.setWinning(false);
-
-        Box box2 = new Box();
-        box2.setGame(game);
-        box2.setOpened(false);
-        box2.setPicked(false);
-        box2.setWinning(true);
-
-        Box box3 = new Box();
-        box3.setGame(game);
-        box3.setOpened(false);
-        box3.setPicked(false);
-        box3.setWinning(false);
-
-        List<Box> boxes = Arrays.asList(box1, box2, box3);
-
-        box1.setOpened(true);
-        box2.setOpened(true);
-        List<Box> expected = Arrays.asList(box1, box2, box3);
-
-        List<Box> actual = boxService.openAllBoxesExceptOne(boxes, box3);
+        List<Box> actual = boxService.createBoxes(GAME_ID, numberOfBoxes);
 
         assertThat(actual).containsAll(expected);
+
+        verify(boxRepository, times(2)).save(firstBox);
+        verify(boxRepository).save(secondBox);
     }
 }

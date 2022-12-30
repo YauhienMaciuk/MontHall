@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="20221003-0" author="Yauheni Matsiuk">
+        <sql>
+            CREATE TABLE IF NOT EXISTS game (
+            id BIGSERIAL NOT NULL CONSTRAINT pk_game PRIMARY KEY,
+            status TEXT NOT NULL
+            );
+        </sql>
+        <rollback>
+            DROP TABLE game;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

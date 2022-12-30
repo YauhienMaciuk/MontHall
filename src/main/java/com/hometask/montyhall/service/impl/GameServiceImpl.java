@@ -29,28 +29,31 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game createGame(GameDto gameDto) {
-        LOGGER.info("Trying to create Game with gameDto = {}", gameDto);
-        Game game = new Game();
-        game.setStatus(GameStatus.CREATED);
+        LOGGER.info("Create the Game by gameDto = {}", gameDto);
 
-        game = gameRepository.save(game);
+        Game game = Game.builder()
+                .status(GameStatus.CREATED)
+                .build();
 
-        boxService.createBoxes(game, gameDto.getNumberOfBoxes());
-        return game;
+        Long gameId = gameRepository.save(game);
+        int numberOfBoxes = gameDto.getNumberOfBoxes();
+        boxService.createBoxes(gameId, numberOfBoxes);
+
+        return game.toBuilder()
+                .id(gameId)
+                .build();
     }
 
     @Override
     public Game findById(Long id) {
-        LOGGER.info("Trying to find Game by id = {}", id);
-        return gameRepository.findById(id).orElseThrow(() ->
-                new NoSuchEntityException(String.format("Could not find the Game by id = %s", id)));
+        return gameRepository.findById(id).orElseThrow(
+                () -> new NoSuchEntityException(String.format("Could not find the Game by id = %s", id))
+        );
     }
 
     @Override
-    public void changeGameStatus(Long gameId, GameStatus status) {
-        LOGGER.info("Trying to set {} status for game with id = {}", status, gameId);
-        Game game = findById(gameId);
-        game.setStatus(status);
-        gameRepository.save(game);
+    public void changeGameStatus(Long gameId, GameStatus gameStatus) {
+        String status = gameStatus.name();
+        gameRepository.updateStatus(gameId, status);
     }
 }

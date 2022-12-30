@@ -21,6 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class GameControllerIT {
 
+    private static final Long GAME_ID = 1L;
+
     private final GameService gameService = mock(GameService.class);
 
     private MockMvc mvc;
@@ -43,9 +45,10 @@ class GameControllerIT {
         GameDto gameDto = new GameDto();
         gameDto.setNumberOfBoxes(3);
 
-        Game game = new Game();
-        game.setId(1L);
-        game.setStatus(GameStatus.CREATED);
+        Game game = Game.builder()
+                .id(GAME_ID)
+                .status(GameStatus.CREATED)
+                .build();
 
         when(gameService.createGame(gameDto)).thenReturn(game);
 
@@ -104,14 +107,14 @@ class GameControllerIT {
 
     @Test
     void should_find_game_by_id() throws Exception {
-        Game game = new Game();
-        long gameId = 1L;
-        game.setId(gameId);
-        game.setStatus(GameStatus.CREATED);
-        when(gameService.findById(gameId)).thenReturn(game);
+        Game game = Game.builder()
+                .id(GAME_ID)
+                .status(GameStatus.CREATED)
+                .build();
+        when(gameService.findById(GAME_ID)).thenReturn(game);
 
         String response = mvc.perform(MockMvcRequestBuilders
-                .get("/games/" + gameId)
+                .get("/games/" + GAME_ID)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -121,18 +124,17 @@ class GameControllerIT {
         Game actual = objectMapper.readValue(response, Game.class);
         assertThat(actual).isEqualTo(game);
 
-        verify(gameService).findById(gameId);
+        verify(gameService).findById(GAME_ID);
     }
 
     @Test
     void should_not_find_game_when_game_does_not_exist() throws Exception {
-        Long gameId = 1L;
-        String errMsg = "Could not find the Game by id = " + gameId;
+        String errMsg = "Could not find the Game by id = " + GAME_ID;
         String expected = "\"" + errMsg + "\"";
-        when(gameService.findById(gameId)).thenThrow(new NoSuchEntityException(errMsg));
+        when(gameService.findById(GAME_ID)).thenThrow(new NoSuchEntityException(errMsg));
 
         String actual = mvc.perform(MockMvcRequestBuilders
-                .get("/games/" + gameId)
+                .get("/games/" + GAME_ID)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn()
@@ -141,7 +143,6 @@ class GameControllerIT {
 
         assertThat(actual).isEqualTo(expected);
 
-        verify(gameService).findById(gameId);
+        verify(gameService).findById(GAME_ID);
     }
-
 }
