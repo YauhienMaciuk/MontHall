@@ -1,8 +1,4 @@
-FROM ubuntu:20.04
-
-RUN apt-get update -y
-RUN apt-get install -y software-properties-common
-RUN apt-get install -y openjdk-11-jdk
+FROM openjdk:17-jdk-slim
 
 WORKDIR /usr/app
 
